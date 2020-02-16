@@ -1,11 +1,6 @@
 #include "eagle_soc.h"
 #include "driver\mfrc522.h"
 #include "driver\spi.h"
-#include "driver\spi_interface.h"
-#include "driver\spi_overlap.h"
-
-
-
 
 void MFRC522_InitPins(void) {
 	spi_init(1);
@@ -24,25 +19,15 @@ void MFRC522_Init(void) {
 	// When communicating with a PICC we need a timeout if something goes wrong.
 	// f_timer = 13.56 MHz / (2*TPreScaler+1) where TPreScaler = [TPrescaler_Hi:TPrescaler_Lo].
 	// TPrescaler_Hi are the four low bits in TModeReg. TPrescaler_Lo is TPrescalerReg.
-	MFRC522_WriteRegister(MFRC522_REG_T_MODE, 0x80);			// TAuto=1; timer starts automatically at the end of the transmission in all communication modes at all speeds
-	MFRC522_WriteRegister(MFRC522_REG_T_PRESCALER, 0xA9);		// TPreScaler = TModeReg[3..0]:TPrescalerReg, ie 0x0A9 = 169 => f_timer=40kHz, ie a timer period of 25μs.
-	MFRC522_WriteRegister(MFRC522_REG_T_RELOAD_H, 0x03);		// Reload timer with 0x3E8 = 1000, ie 25ms before timeout.
+	MFRC522_WriteRegister(MFRC522_REG_T_MODE, 0x80);
+	MFRC522_WriteRegister(MFRC522_REG_T_PRESCALER, 0xA9);
+	MFRC522_WriteRegister(MFRC522_REG_T_RELOAD_H, 0x03);
 	MFRC522_WriteRegister(MFRC522_REG_T_RELOAD_L, 0xE8);
 
-	MFRC522_WriteRegister(MFRC522_REG_TX_AUTO, 0x40);		// Default 0x00. Force a 100 % ASK modulation independent of the ModGsPReg register setting
+	MFRC522_WriteRegister(MFRC522_REG_TX_AUTO, 0x40);
 	MFRC522_WriteRegister(MFRC522_REG_MODE, 0x3D);
 
-
-	//Конфигурируем mfrc522
-//	MFRC522_WriteRegister(0x11,0x3D);
-//	MFRC522_WriteRegister(0x2D,0x30);
-//	MFRC522_WriteRegister(0x2C,0x00);
-//	MFRC522_WriteRegister(0x2A,0x8D);
-//	MFRC522_WriteRegister(0x2B,0x3E);
-//	MFRC522_WriteRegister(0x14,0x83);
-//	MFRC522_WriteRegister(0x15,0x40);
-
-//	MFRC522_WriteRegister(MFRC522_REG_RF_CFG,0x40);
+	MFRC522_WriteRegister(MFRC522_REG_RF_CFG,0x70);
 
 	MFRC522_AntennaOn();
 }
@@ -50,9 +35,7 @@ void MFRC522_Init(void) {
 void MFRC522_WriteRegister(uint8_t addr, uint8_t val) {
 	uint32_t res;
 	uint32_t addr_t = (uint32_t)((addr << 1) & 0x7E);
-
 	res = spi_addr_tx8(1,addr_t,val);
-//	res = spi_rx8(1);
 }
 uint8_t MFRC522_ReadRegister(uint8_t addr) {
 	uint32_t res;
@@ -75,7 +58,7 @@ void MFRC522_ClearBitMask(uint8_t reg, uint8_t mask){
 }
 
 void MFRC522_AntennaOn(void) {
-	 uint8_t temp = MFRC522_ReadRegister(MFRC522_REG_TX_CONTROL);
+	uint8_t temp = MFRC522_ReadRegister(MFRC522_REG_TX_CONTROL);
 	if (!(temp & 0x03)) {
 		MFRC522_SetBitMask(MFRC522_REG_TX_CONTROL,0x03);
 	}
@@ -89,7 +72,7 @@ void MFRC522_Reset() {
 	MFRC522_WriteRegister(MFRC522_REG_COMMAND, PCD_RESETPHASE);
 	// The datasheet does not mention how long the SoftRest command takes to complete.
 	// But the MFRC522 might have been in soft power-down mode (triggered by bit 4 of CommandReg)
-	// Section 8.8.2 in the datasheet says the oscillator start-up time is the start up time of the crystal + 37,74μs. Let us be generous: 50ms.
+	// Section 8.8.2 in the datasheet says the oscillator start-up time is the start up time of the crystal + 37,74μs. 	Let us be generous: 50ms.
 	os_delay_us(50000);
 }
 
@@ -102,8 +85,6 @@ MFRC522_Status_t MFRC522_Check(uint8_t* id) {
 		//Anti-collision, return card serial number 4 bytes
 		status = MFRC522_Anticoll(id);
 	}
-//	MFRC522_Halt();			//Command card into hibernation
-
 	return status;
 }
 
@@ -195,9 +176,7 @@ MFRC522_Status_t MFRC522_ToCard(uint8_t command, uint8_t *sendData, uint8_t send
 				//Reading the received data in FIFO
 				for (i = 0; i < n; i++) {   
 					backData[i] = MFRC522_ReadRegister(MFRC522_REG_FIFO_DATA);
-//					os_printf("\n0x%02x\n",backData[i]);
 				}
-//				os_printf("0x%02x", backBits)
 			}
 		} else {   
 			status = MI_ERR;  

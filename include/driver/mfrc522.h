@@ -158,7 +158,7 @@ extern MFRC522_Status_t MFRC522_Compare(uint8_t* CardID, uint8_t* CompareID);
 /**
  * Private functions
  */
-extern void MFRC522_InitPins(void);
+extern void MFRC522_Init(void);
 extern void MFRC522_WriteRegister(uint8_t addr, uint8_t val);
 extern uint8_t MFRC522_ReadRegister(uint8_t addr);
 extern void MFRC522_SetBitMask(uint8_t reg, uint8_t mask);
