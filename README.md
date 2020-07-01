@@ -1,2 +1,2 @@
 # ESP8266NONOS-MFRC522
-MFRC522 RFID module connected to ESP8266 on SDK 2.2.1
+MFRC522 RFID module connected to ESP8266 on nonOS SDK 2.2.1
