@@ -60,9 +60,9 @@ void ICACHE_FLASH_ATTR user_init(void)
 {
 	UARTInit(BIT_RATE_115200);
 	wifi_set_opmode(0x02);
-  os_printf("\r\n =============   init mfrc522   ============= \r\n");
-  MFRC522_Init();
-  os_printf("rc522 version: 0x%02x\n", MFRC522_ReadRegister(0x37));
+	os_printf("\r\n =============   init mfrc522   ============= \r\n");
+	MFRC522_Init();
+	os_printf("rc522 version: 0x%02x\n", MFRC522_ReadRegister(0x37));
 	os_timer_disarm(&check_timer);
 	os_timer_setfn(&check_timer, (os_timer_func_t *)check_cb, (void *)0);
 	os_timer_arm(&check_timer, 500,1);
